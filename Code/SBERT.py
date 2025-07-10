@@ -16,9 +16,6 @@ DATA_DIR = './dataset'
 OUTPUT_DIR = './SBERT/output'
 SBERT_MODEL = 'all-MiniLM-L6-v2'  # 使用的SBERT模型名称，由SBERT.net提供
 
-K_NEIGHBORS = 5  # K近邻数量
-WEIGHT_STRATEGY = 'distance'  # 权重策略 ('distance' 或 'uniform')
-
 class SBERTEmbedding:
     """基于SBERT的代码嵌入类"""
     
