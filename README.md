@@ -1,2 +1,27 @@
 # MultiCodeEmbed
-A three-dimensional degree code embedding tool that generates vectors in contextual, syntactic, and semantic dimensions, respectively. Based on code2vec, CodeBERT, SBERT.
+*Multi-Dimension Code Embedding*——
+A three-dimensional degree code embedding tool that generates vectors in contextual, syntactic, and semantic dimensions, respectively. Based on [code2vec](https://github.com/dcoimbra/dx2021), [CodeBERT](https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/Defect-detection) and [SBERT](https://github.com/UKPLab/sentence-transformers).
+
+This project was created to help **[Forsee](https://github.com/keepTheFlowerOfTime/Forsee)** process data.
+
+## 📄 Dataset
+This project uses the dataset from the ***Forsee*** project, [Link to dataset](https://github.com/keepTheFlowerOfTime/Forsee/tree/main/dataset).
+
+## 🖥️ Steps to run
+
+### Step1
+
+pass
+
+### Step2
+
+pass
+
+### StepN
+
+## 🧩 Built Upon Giants
+This project leverages cutting-edge research from the open-source community:
+- **[VulSim](https://github.com/SamihaShimmi/VulSim)**
+- **[code2vec](https://github.com/dcoimbra/dx2021)**  
+- **[CodeBERT](https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/Defect-detection)**  
+- **[SBERT](https://github.com/UKPLab/sentence-transformers)**  
