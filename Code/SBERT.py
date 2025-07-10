@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 import os
 import time
 import warnings
-import pickle
+import numpy as np
 warnings.filterwarnings('ignore')
 
 # 配置路径
@@ -116,10 +116,10 @@ class SBERTEmbedding:
         
         if save_to_file:
             # 保存嵌入向量到文件
-            embedding_file = os.path.join(OUTPUT_DIR, f'{dataset_name}_SBERT_embeddings.pkl')
+            embedding_file = os.path.join(OUTPUT_DIR, f'{dataset_name}_SBERT_embeddings.npy')
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             with open(embedding_file, 'wb') as f:
-                pickle.dump(embeddings.cpu().numpy(), f)
+                np.save(f, embeddings.cpu().numpy())
             print(f"✓ 嵌入向量已保存到: {embedding_file}， 耗时: {time.time() - start_time:.2f}秒")
         
         return True
