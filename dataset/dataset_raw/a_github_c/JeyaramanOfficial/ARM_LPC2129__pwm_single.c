@@ -1,0 +1,48 @@
+#include<lpc21xx.h>
+
+void delay(int);
+int main()
+{
+    PINSEL0 |= (1<<17);
+    PINSEL0 &= ~(1<<16);  
+    
+
+    
+    PWMPR = 14;
+    PWMMR0 = 10000;
+    PWMLER = 1<<0;
+    PWMMCR = (1<<1);   
+    PWMPCR &= ~(1<<4);  
+    PWMPCR = (1<<12);
+    PWMTCR = (1<<0)|(1<<3);  
+    
+        while(1)
+        {
+            PWMMR4 = 2500;   
+            PWMLER = 1<<4;
+            delay(500);
+            
+            PWMMR4 = 5000;   
+            PWMLER = 1<<4;
+            delay(500);
+            
+            PWMMR4 = 7500;   
+            PWMLER = 1<<4;
+            delay(500);
+            
+            PWMMR4 = 10000;   
+            PWMLER = 1<<4;
+            delay(500);
+        
+    }
+}
+
+void delay(int ct)
+{
+    for(int i=0;i<ct;i++)
+    {
+        for(int j=0;j<6000;j++)
+        {
+        }
+    }
+}
