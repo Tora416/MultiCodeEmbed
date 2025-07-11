@@ -11,9 +11,12 @@ import warnings
 import numpy as np
 warnings.filterwarnings('ignore')
 
+import getAllData
+
 # 配置路径
-DATA_DIR = './dataset'
-OUTPUT_DIR = './SBERT/output'
+PY_FILE_BASE_PATH = os.path.dirname(__file__)
+DATA_DIR = os.path.join(PY_FILE_BASE_PATH, '../dataset')
+OUTPUT_DIR = os.path.join(PY_FILE_BASE_PATH, '../SBERT/output')
 SBERT_MODEL = 'all-MiniLM-L6-v2'  # 使用的SBERT模型名称，由SBERT.net提供
 
 class SBERTEmbedding:
@@ -41,26 +44,6 @@ class SBERTEmbedding:
         except Exception as e:
             print(f"✗ 模型加载失败: {e}")
             return False
-    
-    def get_all_data_files(self, data_dir: str = DATA_DIR):
-        """
-        获取数据目录下的所有JSONL文件
-        
-        Args:
-            data_dir: 数据目录路径
-            
-        Returns:
-            list: JSONL文件列表
-        """
-        if not os.path.exists(data_dir):
-            print(f"错误: 数据目录不存在 {data_dir}")
-            return []
-        
-        jsonl_files = [f for f in os.listdir(data_dir) if f.endswith('.jsonl')]
-        if not jsonl_files:
-            print("警告: 未找到任何JSONL文件")
-        
-        return jsonl_files
 
     def load_data(self, jsonl_file: str, data_dir: str = DATA_DIR):
         """
@@ -138,7 +121,7 @@ def main():
         return
     
     # 加载数据
-    jsonl_files = classifier.get_all_data_files()
+    jsonl_files = getAllData.get_all_data_files()
     for file in jsonl_files:
         if not classifier.load_data(file):
             print(f"数据加载失败: {file}")
