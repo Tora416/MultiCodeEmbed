@@ -6,6 +6,7 @@ import gc
 import time
 from transformers import AutoTokenizer, AutoModel
 import torch
+import shutil
 
 import getAllData
 import CodeBERT_1train
@@ -141,7 +142,7 @@ def create_embeddings(tokenizer, model, df):
     print(f"Finished processing in {len(vectors_calculation_passes)} passes")
     return len(vectors_calculation_passes)
 
-def combine_embeddings(num_passes, dataName):
+def combine_embeddings(num_passes, dataName, need_state_dict: bool):
     """合并嵌入向量块"""
     print("Combining embedding chunks...")
     
@@ -162,7 +163,10 @@ def combine_embeddings(num_passes, dataName):
     vectors_table_padded = np.asarray(vectors_table_padded)
     
     # 保存为npy格式
-    embedding_npy_file = os.path.join(WORKING_DIR, 'dataset', f'codeBERT_embedding_{dataName}.npy')
+    if need_state_dict:
+        embedding_npy_file = os.path.join(WORKING_DIR, 'dataset', f'{dataName}_CodeBERT_embeddings.npy')
+    else:
+        embedding_npy_file = os.path.join(WORKING_DIR, 'dataset', f'{dataName}_CodeBERT_base_embeddings.npy')
     with open(embedding_npy_file, 'wb') as handle:
         np.save(handle, vectors_table_padded)
     
@@ -176,8 +180,12 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
     
     # 0. 查询所有数据集
     dataAll = getAllData.get_all_data_files()
-    
+
     for dataFile in dataAll:
+        if not dataFile.endswith('.jsonl'):
+            print(f"Skipping non-JSONL file: {dataFile}")
+            continue
+        
         # 1. 加载模型
         dataName = dataFile.replace('.jsonl', '')
         modelName = f"{dataName}_model.bin"
@@ -196,11 +204,14 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
         num_passes = create_embeddings(tokenizer, model, df)
         
         # 5. 合并嵌入向量
-        _ = combine_embeddings(num_passes, dataName)
+        _ = combine_embeddings(num_passes, dataName, need_state_dict)
 
         # 6. 清理内存
         del df, model, tokenizer
         gc.collect()
+        if os.path.exists(os.path.join(WORKING_DIR, 'dataset', 'embed_chunks')):
+            shutil.rmtree(os.path.join(WORKING_DIR, 'dataset', 'embed_chunks'))
+        print("Cleared memory and temporary files")
 
 if __name__ == "__main__":
     main()
