@@ -316,7 +316,7 @@ def evaluate(args, model, tokenizer,eval_when_training=False):
         nb_eval_steps += 1
     logits=np.concatenate(logits,0)
     labels=np.concatenate(labels,0)
-    preds=logits[:,0]>0.5
+    preds=np.argmax(logits, axis=1)
     eval_acc=np.mean(labels==preds)
     eval_loss = eval_loss / nb_eval_steps
     perplexity = torch.tensor(eval_loss)
@@ -472,7 +472,8 @@ def main():
                         help="Minimum change in the loss required to qualify as an improvement.")
     parser.add_argument('--dropout_probability', type=float, default=0, help='dropout probability')
 
-
+    # num of labels
+    parser.add_argument('--num_labels', type=int, default=1, help='number of labels for classification')
     
 
     args = parser.parse_args()
@@ -533,7 +534,7 @@ def main():
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     config = config_class.from_pretrained(args.config_name if args.config_name else args.model_name_or_path,
                                           cache_dir=args.cache_dir if args.cache_dir else None)
-    config.num_labels=1
+    config.num_labels = args.num_labels
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name,
                                                 do_lower_case=args.do_lower_case,
                                                 cache_dir=args.cache_dir if args.cache_dir else None)
