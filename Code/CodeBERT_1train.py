@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 PY_FILE_BASE_PATH = os.path.dirname(__file__)
 PROJECT_DIR = os.path.join(PY_FILE_BASE_PATH, '..')
 SEED = 42
+EPOCH = '1'
 
 def train_codebert(labelNum: int, pythonPath: str = None):
     """
@@ -38,7 +39,7 @@ def train_codebert(labelNum: int, pythonPath: str = None):
         f'--eval_data_file={validPath}',
         # f'--test_data_file={testPath}',
         f'--num_labels={labelNum}',
-        '--epoch', '5',
+        '--epoch', EPOCH,
         '--block_size', '400',
         '--train_batch_size', '32',
         '--eval_batch_size', '64',
@@ -120,6 +121,10 @@ def train(dataFile: str):
     os.remove(dataPathT)  # Clean up temporary file
     os.remove(os.path.join(dataBasePath, 'train.jsonl'))
     os.remove(os.path.join(dataBasePath, 'valid.jsonl'))
+    modelPath = os.path.join(PROJECT_DIR, 'CodeBERT', 'code', 'saved_models', 'checkpoint-best-acc')
+    newName = dataFile.replace('.jsonl', '') + '_model.bin'
+    os.rename(os.path.join(modelPath, 'model.bin'),
+              os.path.join(modelPath, newName))  # Rename final model file
 
 if __name__ == '__main__':
     train('c.jsonl')  # Example usage with 'c.jsonl' dataset
