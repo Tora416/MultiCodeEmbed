@@ -186,6 +186,8 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
             print(f"Skipping non-JSONL file: {dataFile}")
             continue
         
+        print(f"\nProcessing file: {dataFile}")
+        
         # 1. 加载模型
         dataName = dataFile.replace('.jsonl', '')
         modelName = f"{dataName}_model.bin"
