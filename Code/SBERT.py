@@ -50,7 +50,7 @@ class SBERTEmbedding:
         加载并合并JSONL文件
         
         Args:
-            jsonl_file: JSONL文件路径
+            jsonl_file: JSONL文件名
             data_dir: 数据目录
         """
         print("加载数据文件...")
