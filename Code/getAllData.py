@@ -21,3 +21,9 @@ def get_all_data_files(data_dir: str=DATA_DIR):
         print("警告: 未找到任何JSONL文件")
     
     return jsonl_files
+
+if __name__ == "__main__":
+    all_files = get_all_data_files()
+    print("找到以下JSONL文件:")
+    for f in all_files:
+        print(f)
