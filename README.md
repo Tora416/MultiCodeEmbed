@@ -7,6 +7,15 @@ This project was created to help **[Forsee](https://github.com/keepTheFlowerOfTi
 ## 📄 Dataset
 This project uses the dataset from the ***Forsee*** project, [Link to dataset](https://github.com/keepTheFlowerOfTime/Forsee/tree/main/dataset).
 
+## ⚙ Work progress
+
+- [x] Dataset Processing ![Static Badge](https://img.shields.io/badge/Done-green)
+- [ ] Model Adaptation ![Static Badge](https://img.shields.io/badge/WIP-orange)
+  - [x] SBERT ![Static Badge](https://img.shields.io/badge/Done-green)
+  - [x] CodeBERT ![Static Badge](https://img.shields.io/badge/Done-green)
+  - [ ] code2vec ![Static Badge](https://img.shields.io/badge/WIP-orange)
+- [ ] Documentation ![Static Badge](https://img.shields.io/badge/WIP-orange)
+
 ## 🖥️ Steps to run
 
 ### Step1
