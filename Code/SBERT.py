@@ -127,7 +127,7 @@ def main():
             print(f"数据加载失败: {file}")
             return
         
-        # 计算嵌入和相似度矩阵
+        # 计算嵌入
         if not classifier.compute_embeddings(file.split('.')[0]):
             print(f"嵌入计算失败: {file}")
             return
