@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 PY_FILE_BASE_PATH = os.path.dirname(__file__)
 PROJECT_DIR = os.path.join(PY_FILE_BASE_PATH, '..')
 SEED = 42
-EPOCH = '1'
+EPOCH = '5'
 
 def train_codebert(labelNum: int, pythonPath: str = None):
     """
