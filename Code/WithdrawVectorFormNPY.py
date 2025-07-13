@@ -42,5 +42,17 @@ def main(args):
     withdraw_vector_form_npy(npy_path, output_path)
     print(f"Vectors withdrawn and saved to {output_path}")
     
+def test_output(npy_path: str):
+    """
+    Output few lines of the NPY file to verify the content.
+    """
+    with open(npy_path, 'rb') as f:
+        data = np.load(f)
+        print(f"Sample output from NPY file {npy_path}:")
+        print(f"data shape: {data.shape}")
+        print(data[:5])  # Print first 5 lines
+
+
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    # main(sys.argv[1:])
+    test_output("./CodeBERT/dataset/c_CodeBERT_base_embeddings.npy")
