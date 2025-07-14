@@ -16,8 +16,8 @@ data class Sample (val target: String, val func: String)
 //Retrieve paths from all JavaScript files, using an Antlr parser.
 //JavaScriptMethodSplitter is used to extract individual method nodes from the compilation unit tree.
 fun code2vecCMethods(split: String) {
-    val source = "dataset/${split}.jsonl"
-    val outputDir = "../code2vec"
+    val source = "../../../dataset/${split}.jsonl"
+    val outputDir = "../code2vec/raws"
 
     val miner = PathMiner(PathRetrievalSettings(8, 3))
 
