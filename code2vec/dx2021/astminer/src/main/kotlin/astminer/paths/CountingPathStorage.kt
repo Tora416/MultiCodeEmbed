@@ -20,7 +20,7 @@ abstract class CountingPathStorage<LabelType>(override val split: String,
 
     init {
         File(directoryPath).mkdirs()
-        pathsFile = File("$directoryPath/devign.$split.raw.txt")
+        pathsFile = File("$directoryPath/$split.raw.txt")
         pathsFile.createNewFile()
         labeledPathContextIdsWriter = PrintWriter(pathsFile)
     }
