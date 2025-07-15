@@ -17,10 +17,17 @@ REM NUM_THREADS - the number of parallel threads to use. It is
 REM   recommended to use a multi-core machine for the preprocessing 
 REM   step and set this value to the number of cores.
 REM PYTHON - python3 interpreter alias.
+
+if "%1"=="" (
+    echo Usage: %0 ^<DATASET_NAME^>
+    echo Example: %0 devign
+    exit /b 1
+)
+
 SET TRAIN_DIR=my_train_dir
 SET VAL_DIR=my_val_dir
 SET TEST_DIR=my_test_dir
-SET DATASET_NAME=devign
+SET DATASET_NAME=%1
 SET MAX_CONTEXTS=200
 SET WORD_VOCAB_SIZE=20000
 SET PATH_VOCAB_SIZE=20000

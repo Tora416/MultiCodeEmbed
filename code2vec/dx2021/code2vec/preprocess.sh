@@ -18,21 +18,29 @@
 #   recommended to use a multi-core machine for the preprocessing 
 #   step and set this value to the number of cores.
 # PYTHON - python3 interpreter alias.
+
+# check for required arguments
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <DATASET_NAME>"
+    echo "Example: $0 devign"
+    exit 1
+fi
+
 TRAIN_DIR=my_train_dir
 VAL_DIR=my_val_dir
 TEST_DIR=my_test_dir
-DATASET_NAME=devign
+DATASET_NAME=$1
 MAX_CONTEXTS=200
 WORD_VOCAB_SIZE=1301136
 PATH_VOCAB_SIZE=911417
 TARGET_VOCAB_SIZE=261245
 NUM_THREADS=64
-PYTHON=python3
+PYTHON=../../../.venv/bin/python
 ###########################################################
 
-TRAIN_DATA_FILE=${DATASET_NAME}.train.raw.txt
-VAL_DATA_FILE=${DATASET_NAME}.valid.raw.txt
-TEST_DATA_FILE=${DATASET_NAME}.test.raw.txt
+TRAIN_DATA_FILE=raws/${DATASET_NAME}_train.raw.txt
+VAL_DATA_FILE=raws/${DATASET_NAME}_valid.raw.txt
+TEST_DATA_FILE=raws/${DATASET_NAME}_test.raw.txt
 
 mkdir -p data
 mkdir -p data/${DATASET_NAME}

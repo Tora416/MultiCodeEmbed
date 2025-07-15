@@ -9,8 +9,14 @@
 # type=java14m
 # dataset_name=java14m
 
-type=devign
-dataset_name=devign
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <DATASET_NAME>"
+    echo "Example: $0 devign"
+    exit 1
+fi
+
+type=$1
+dataset_name=$1
 data_dir=data/${dataset_name}
 data=${data_dir}/${dataset_name}
 test_data=${data_dir}/${dataset_name}.val.c2v

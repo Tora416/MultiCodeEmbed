@@ -9,8 +9,14 @@ REM   on the final (held-out) test set, change 'val' to 'test'.
 REM type=java14m
 REM dataset_name=java14m
 
-SET type=devign
-SET dataset_name=devign
+if "%1"=="" (
+    echo Usage: %0 ^<DATASET_NAME^>
+    echo Example: %0 devign
+    exit /b 1
+)
+
+SET type=%1
+SET dataset_name=%1
 SET data_dir=data\%dataset_name%
 SET data=%data_dir%\%dataset_name%
 SET test_data=%data_dir%\%dataset_name%.val.c2v
