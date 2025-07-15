@@ -94,6 +94,11 @@ def split_data_for_training(dataPath, train_ratio=0.8):
     train_df = train_df.sample(frac=1, random_state=SEED).reset_index(drop=True) if len(train_df) > 0 else train_df
     valid_df = valid_df.sample(frac=1, random_state=SEED).reset_index(drop=True) if len(valid_df) > 0 else valid_df
     test_df = test_df.sample(frac=1, random_state=SEED).reset_index(drop=True) if len(test_df) > 0 else test_df
+    
+    # 去除target中的空格
+    train_df['target'] = train_df['target'].str.replace(' ', '_')
+    valid_df['target'] = valid_df['target'].str.replace(' ', '_')
+    test_df['target'] = test_df['target'].str.replace(' ', '_')
 
     dataBasePath = os.path.dirname(dataPath)
     train_df.to_json(os.path.join(dataBasePath, f'{dataset_name}_train.jsonl'), lines=True, orient='records')
