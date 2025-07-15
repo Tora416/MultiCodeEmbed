@@ -5,3 +5,4 @@ __pycache__/
 JavaExtractor/
 CSharpExtractor/
 raws/
+./dictionaries.bin
