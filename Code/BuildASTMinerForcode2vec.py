@@ -42,7 +42,7 @@ def prepare_datasets():
             else:
                 cli_path = os.path.join(py_path, '..', 'code2vec', 'dx2021', 'astminer', 'cli.sh')
             
-            cmd = [cli_path, dataset]
+            cmd = [cli_path, dataset, dataset]
             subprocess.run(cmd, cwd=os.path.dirname(cli_path), check=True)
 
     print("Dataset preparation completed successfully.")
