@@ -8,7 +8,6 @@ import astminer.parse.antlr.javascript.JavaScriptParser
 import astminer.parse.cpp.FuzzyCppParser
 import astminer.parse.cpp.FuzzyMethodSplitter
 import astminer.parse.java.GumTreeJavaParser
-import astminer.parse.java.GumTreeMethodsSplitter
 import astminer.paths.*
 import com.google.gson.Gson
 import java.io.File
