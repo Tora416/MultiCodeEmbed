@@ -3,4 +3,5 @@
 .gradle/
 output/
 build/
+bin/
 raw_code_path_injection/
