@@ -36,9 +36,9 @@ SET NUM_THREADS=16
 SET PYTHON=..\..\..\.venv\Scripts\python.exe
 REM ###########################################################
 
-SET TRAIN_DATA_FILE=%DATASET_NAME%.train.raw.txt
-SET VAL_DATA_FILE=%DATASET_NAME%.valid.raw.txt
-SET TEST_DATA_FILE=%DATASET_NAME%.test.raw.txt
+SET TRAIN_DATA_FILE=raws\%DATASET_NAME%_train.raw.txt
+SET VAL_DATA_FILE=raws\%DATASET_NAME%_valid.raw.txt
+SET TEST_DATA_FILE=raws\%DATASET_NAME%_test.raw.txt
 
 REM Create directories if they don't exist
 if not exist "data" mkdir data
