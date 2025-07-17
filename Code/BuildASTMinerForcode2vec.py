@@ -2,7 +2,6 @@ import os
 import sys
 import subprocess
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 import getAllData
 
@@ -53,6 +52,8 @@ def split_data_for_training(dataPath, train_ratio=0.8):
     Split the dataset into training, validation sets.
     """
     df = pd.read_json(dataPath, lines=True)
+    df['idx'] = range(len(df))
+    
     dataset_name = os.path.basename(dataPath).replace('.jsonl', '')
 
     another_ratio = (1 - train_ratio) / 2
@@ -99,8 +100,22 @@ def split_data_for_training(dataPath, train_ratio=0.8):
     train_df['target'] = train_df['target'].str.replace(' ', '_')
     valid_df['target'] = valid_df['target'].str.replace(' ', '_')
     test_df['target'] = test_df['target'].str.replace(' ', '_')
-
+    
+    # 单独保存打乱后的idx
     dataBasePath = os.path.dirname(dataPath)
+    train_idx = train_df[['idx']]
+    valid_idx = valid_df[['idx']]
+    test_idx = test_df[['idx']]
+    train_idx.to_json(os.path.join(dataBasePath, 'ranks', f'{dataset_name}_train_idx.jsonl'), lines=True, orient='records')
+    valid_idx.to_json(os.path.join(dataBasePath, 'ranks', f'{dataset_name}_valid_idx.jsonl'), lines=True, orient='records')
+    test_idx.to_json(os.path.join(dataBasePath, 'ranks', f'{dataset_name}_test_idx.jsonl'), lines=True, orient='records')
+
+    # 删除idx
+    train_df.drop('idx', axis=1, inplace=True)
+    valid_df.drop('idx', axis=1, inplace=True)
+    test_df.drop('idx', axis=1, inplace=True)
+    
+    # 保存分割后的df
     train_df.to_json(os.path.join(dataBasePath, f'{dataset_name}_train.jsonl'), lines=True, orient='records')
     valid_df.to_json(os.path.join(dataBasePath, f'{dataset_name}_valid.jsonl'), lines=True, orient='records')
     test_df.to_json(os.path.join(dataBasePath, f'{dataset_name}_test.jsonl'), lines=True, orient='records')
