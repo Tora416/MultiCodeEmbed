@@ -42,6 +42,8 @@ class Config:
                             help="path to store logs into. if not given logs are not saved to file.")
         parser.add_argument('-tb', '--tensorboard', dest='use_tensorboard', action='store_true',
                             help='use tensorboard during training')
+        parser.add_argument('--language', dest='language', required=False, default='java',
+                            help='language of the dataset (e.g., java, cpp, c)')
         return parser
 
     def set_defaults(self):
@@ -56,17 +58,13 @@ class Config:
         self.SHUFFLE_BUFFER_SIZE = 10000
         self.CSV_BUFFER_SIZE = 100 * 1024 * 1024  # 100 MB
         self.MAX_TO_KEEP = 10
-
-        # labels
-        self.POSITIVE = 'vuln'
-        self.NEGATIVE = 'safe'
-
+        
         # model hyper-params
         self.MAX_CONTEXTS = 200
         self.MAX_TOKEN_VOCAB_SIZE = 1301136
         self.MAX_TARGET_VOCAB_SIZE = 261245
         self.MAX_PATH_VOCAB_SIZE = 911417
-        self.DEFAULT_EMBEDDINGS_SIZE = 128
+        self.DEFAULT_EMBEDDINGS_SIZE = 768
         self.TOKEN_EMBEDDINGS_SIZE = self.DEFAULT_EMBEDDINGS_SIZE
         self.PATH_EMBEDDINGS_SIZE = self.DEFAULT_EMBEDDINGS_SIZE
         self.CODE_VECTOR_SIZE = self.context_vector_size
@@ -90,6 +88,13 @@ class Config:
         self.LOGS_PATH = args.logs_path
         self.DL_FRAMEWORK = 'tensorflow' if not args.dl_framework else args.dl_framework
         self.USE_TENSORBOARD = args.use_tensorboard
+        if args.language == 'c' or args.language == 'cpp' and False:
+            # self.MAX_TARGET_VOCAB_SIZE = 500000
+            # self.MAX_CONTEXTS = 300
+            self.DROPOUT_KEEP_RATE = 0.85
+            self.NUM_TRAIN_EPOCHS = 80
+            self.TRAIN_BATCH_SIZE = 256
+            self.TEST_BATCH_SIZE = self.TRAIN_BATCH_SIZE
 
     def __init__(self, set_defaults: bool = False, load_from_args: bool = False, verify: bool = False):
         self.NUM_TRAIN_EPOCHS: int = 0
@@ -103,10 +108,6 @@ class Config:
         self.SHUFFLE_BUFFER_SIZE: int = 0
         self.CSV_BUFFER_SIZE: int = 0
         self.MAX_TO_KEEP: int = 0
-
-        # labels
-        self.POSITIVE = ''
-        self.NEGATIVE = ''
 
         # model hyper-params
         self.MAX_CONTEXTS: int = 0

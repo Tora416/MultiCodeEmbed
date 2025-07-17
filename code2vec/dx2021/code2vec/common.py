@@ -13,7 +13,7 @@ class common:
     def normalize_word(word):
 
         stripped = re.sub(r'[^a-zA-Z]', '', word)
-        print(stripped)
+        # print(stripped)
         if len(stripped) == 0:
             return word.lower()
         else:
@@ -123,7 +123,10 @@ class common:
 
     @staticmethod
     def legal_method_names_checker(special_words, name):
-        return name != special_words.OOV #and re.match(r'^[a-zA-Z|]+$', name)
+        if name == special_words.OOV:
+            return False
+
+        return re.match(r'^[a-zA-Z|_]+$', name) is not None
 
     @staticmethod
     def filter_impossible_names(special_words, top_words):

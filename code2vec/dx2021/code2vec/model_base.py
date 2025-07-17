@@ -10,18 +10,18 @@ from pathlib import Path
 
 
 class ModelEvaluationResults(NamedTuple):
-    # topk_acc: float
-    subtoken_precision: float
-    subtoken_recall: float
-    subtoken_f1: float
-    subtoken_accuracy: float
-    subtoken_error_rate: float
-    subtoken_true_positives: int
-    subtoken_true_negatives: int
-    subtoken_false_positives: int
-    subtoken_false_negatives: int
-    subtoken_tnr: float
-    subtoken_fpr: float
+    topk_acc: float
+    subtoken_precision: float = 0.0
+    subtoken_recall: float = 0.0
+    subtoken_f1: float = 0.0
+    subtoken_accuracy: float = 0.0
+    subtoken_error_rate: float = 0.0
+    subtoken_true_positives: int = 0
+    subtoken_true_negatives: int = 0
+    subtoken_false_positives: int = 0
+    subtoken_false_negatives: int = 0
+    subtoken_tnr: float = 0.0
+    subtoken_fpr: float = 0.0
     loss: Optional[float] = None
 
             #     subtoken_precision=subtokens_evaluation_metric.precision,
@@ -38,21 +38,7 @@ class ModelEvaluationResults(NamedTuple):
 
 
     def __str__(self):
-        # res_str = 'topk_acc: {topk_acc}, precision: {precision}, recall: {recall}, accuracy: {accuracy}, F1: {f1}, #TPs={tps}, #FNs={fns}'.format(
-        res_str = 'Precision: {precision}, Sensitivity/Recall: {recall}, Accuracy: {accuracy}, Error Rate: {error_rate}, F1: {f1}, #TPs={tps}, #TNs={tns}, #FPs={fps}, #FNs={fns}, TNR={tnr}, FPR={fpr}'.format(
-            # topk_acc=self.topk_acc,
-            precision=self.subtoken_precision,
-            recall=self.subtoken_recall,
-            f1=self.subtoken_f1,
-            accuracy=self.subtoken_accuracy,
-            error_rate=self.subtoken_error_rate,
-            tps=self.subtoken_true_positives,
-            tns=self.subtoken_true_negatives,
-            fps=self.subtoken_false_positives,
-            fns=self.subtoken_false_negatives,
-            tnr=self.subtoken_tnr,
-            fpr=self.subtoken_fpr
-            )
+        res_str = 'Top-K accuracy: {topk_acc}'.format(topk_acc=self.topk_acc)
         if self.loss is not None:
             res_str = ('loss: {}, '.format(self.loss)) + res_str
         return res_str

@@ -141,11 +141,14 @@ class Code2VecModel(Code2VecModelBase):
                 code_vectors_file = open(self.config.TEST_DATA_PATH + '.vectors', 'w')
             total_predictions = 0
             total_prediction_batches = 0
-            subtokens_evaluation_metric = SubtokensEvaluationMetric(
-                partial(common.filter_impossible_names, self.vocabs.target_vocab.special_words))
+            # subtokens_evaluation_metric = SubtokensEvaluationMetric(
+            #    partial(common.filter_impossible_names, self.vocabs.target_vocab.special_words))
             # topk_accuracy_evaluation_metric = TopKAccuracyEvaluationMetric(
             #     self.config.TOP_K_WORDS_CONSIDERED_DURING_PREDICTION,
             #     partial(common.get_first_match_word_from_top_predictions, self.vocabs.target_vocab.special_words))
+            multi_class_evaluation_metric = MultiClassEvaluationMetric(
+                partial(common.filter_impossible_names, self.vocabs.target_vocab.special_words),
+                top_k=self.config.TOP_K_WORDS_CONSIDERED_DURING_PREDICTION)
             # print(topk_accuracy_evaluation_metric.top_k)
             start_time = time.time()
 
@@ -171,7 +174,8 @@ class Code2VecModel(Code2VecModelBase):
 
                     self._log_predictions_during_evaluation(zip(original_names, top_words), log_output_file)
                     # topk_accuracy_evaluation_metric.update_batch(zip(original_names, top_words))
-                    subtokens_evaluation_metric.update_batch(zip(original_names, top_words))
+                    # subtokens_evaluation_metric.update_batch(zip(original_names, top_words))
+                    multi_class_evaluation_metric.update_batch(zip(original_names, top_words))
 
                     total_predictions += len(original_names)
                     total_prediction_batches += 1
@@ -190,19 +194,20 @@ class Code2VecModel(Code2VecModelBase):
         
         elapsed = int(time.time() - eval_start_time)
         self.log("Evaluation time: %sH:%sM:%sS" % ((elapsed // 60 // 60), (elapsed // 60) % 60, elapsed % 60))
+        multi_class_evaluation_metric.print_summary()
         return ModelEvaluationResults(
-            # topk_acc=topk_accuracy_evaluation_metric.topk_correct_predictions,
-            subtoken_precision=subtokens_evaluation_metric.precision,
-            subtoken_recall=subtokens_evaluation_metric.recall,
-            subtoken_f1=subtokens_evaluation_metric.f1,
-            subtoken_accuracy=subtokens_evaluation_metric.accuracy,
-            subtoken_error_rate=subtokens_evaluation_metric.error_rate,
-            subtoken_true_positives=subtokens_evaluation_metric.nr_true_positives,
-            subtoken_true_negatives=subtokens_evaluation_metric.nr_true_negatives,
-            subtoken_false_positives=subtokens_evaluation_metric.nr_false_positives,
-            subtoken_false_negatives=subtokens_evaluation_metric.nr_false_negatives,
-            subtoken_tnr=subtokens_evaluation_metric.true_negatives_rate,
-            subtoken_fpr=subtokens_evaluation_metric.false_positives_rate
+            topk_acc=multi_class_evaluation_metric.top5_accuracy,
+            subtoken_precision=0.0,
+            subtoken_recall=0.0,
+            subtoken_f1=0.0,
+            subtoken_accuracy=0.0,
+            subtoken_error_rate=0.0,
+            subtoken_true_positives=0,
+            subtoken_true_negatives=0,
+            subtoken_false_positives=0,
+            subtoken_false_negatives=0,
+            subtoken_tnr=0.0,
+            subtoken_fpr=0.0
             )
 
     def _build_tf_training_graph(self, input_tensors):
@@ -558,6 +563,114 @@ class TopKAccuracyEvaluationMetric:
     @property
     def topk_correct_predictions(self):
         return self.nr_correct_predictions / self.nr_predictions
+    
+class MultiClassEvaluationMetric:
+    def __init__(self, filter_impossible_names_fn, top_k=5):
+        self.filter_impossible_names_fn = filter_impossible_names_fn
+        self.top_k = top_k
+        self.nr_predictions = 0
+        self.nr_correct_predictions_exact = 0  # 完全匹配
+        self.nr_correct_predictions_topk = np.zeros(self.top_k)  # top-k匹配
+        self.predictions = []
+        self.true_labels = []
+        self.prediction_scores = []
+
+    def update_batch(self, results):
+        for original_name, top_words in results:
+            self.nr_predictions += 1
+            
+            # 过滤特殊词汇
+            filtered_predictions = self.filter_impossible_names_fn(top_words)
+            
+            if len(filtered_predictions) == 0:
+                # 没有有效预测
+                self.predictions.append("UNKNOWN")
+                self.true_labels.append(original_name)
+                continue
+            
+            # 记录top-1预测用于详细分析
+            top1_prediction = filtered_predictions[0]
+            self.predictions.append(top1_prediction)
+            self.true_labels.append(original_name)
+            
+            # 检查完全匹配（top-1）
+            if top1_prediction == original_name:
+                self.nr_correct_predictions_exact += 1
+            
+            # 检查top-k匹配
+            for i, pred in enumerate(filtered_predictions[:self.top_k]):
+                if pred == original_name:
+                    # 在第i+1位找到匹配，更新从i到top_k的所有位置
+                    self.nr_correct_predictions_topk[i:] += 1
+                    break
+
+    @property
+    def exact_accuracy(self):
+        """完全匹配准确率（top-1）"""
+        if self.nr_predictions == 0:
+            return 0
+        return self.nr_correct_predictions_exact / self.nr_predictions
+
+    @property 
+    def topk_accuracies(self):
+        """各个top-k准确率"""
+        if self.nr_predictions == 0:
+            return np.zeros(self.top_k)
+        return self.nr_correct_predictions_topk / self.nr_predictions
+
+    @property
+    def top5_accuracy(self):
+        """top-5准确率"""
+        if len(self.topk_accuracies) >= 5:
+            return self.topk_accuracies[4]  # top-5是索引4
+        return 0
+
+    def get_classification_report(self):
+        """获取详细分类报告"""
+        from sklearn.metrics import classification_report, confusion_matrix
+        
+        # 只对有足够样本的类别生成报告
+        unique_labels = list(set(self.true_labels + self.predictions))
+        
+        try:
+            report = classification_report(
+                self.true_labels, 
+                self.predictions, 
+                labels=unique_labels,
+                output_dict=True,
+                zero_division=0
+            )
+            cm = confusion_matrix(self.true_labels, self.predictions, labels=unique_labels)
+            
+            return {
+                'report': report,
+                'confusion_matrix': cm.tolist(),
+                'unique_labels': unique_labels
+            }
+        except Exception as e:
+            print(f"Warning: Could not generate classification report: {e}")
+            return {
+                'report': None,
+                'confusion_matrix': None,
+                'unique_labels': unique_labels
+            }
+
+    def print_summary(self):
+        """打印评估摘要"""
+        print(f"=== 多分类评估结果 ===")
+        print(f"总预测数: {self.nr_predictions}")
+        print(f"完全匹配准确率 (Top-1): {self.exact_accuracy:.4f}")
+        
+        for i, acc in enumerate(self.topk_accuracies):
+            print(f"Top-{i+1} 准确率: {acc:.4f}")
+        
+        # 显示标签分布
+        from collections import Counter
+        true_counter = Counter(self.true_labels)
+        pred_counter = Counter(self.predictions)
+        
+        print(f"\n真实标签分布 (前10): {dict(true_counter.most_common(10))}")
+        print(f"预测标签分布 (前10): {dict(pred_counter.most_common(10))}")
 
 
 class _TFTrainModelInputTensorsFormer(ModelInputTensorsFormer):
