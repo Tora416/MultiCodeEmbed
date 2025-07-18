@@ -35,26 +35,6 @@ def main():
                    '--release']
             subprocess.run(cmd, cwd=C2V_PATH, check=True)
             
-            
-            # embedding
-            cmd1 = [V_PY_PATH, 'code2vec.py', 
-                   '--load', os.path.join('models', f'{dataset_name}', 'saved_model.release'),
-                   '--export_code_vectors', 
-                   '--test', os.path.join('data', f'{dataset_name}', f'{dataset_name}.test.c2v')]
-            subprocess.run(cmd1, cwd=C2V_PATH, check=True)
-            
-            cmd2 = [V_PY_PATH, 'code2vec.py', 
-                   '--load', os.path.join('models', f'{dataset_name}', 'saved_model.release'), 
-                   '--export_code_vectors', 
-                   '--test', os.path.join('data', f'{dataset_name}', f'{dataset_name}.train.c2v')]
-            subprocess.run(cmd2, cwd=C2V_PATH, check=True)
-            
-            cmd3 = [V_PY_PATH, 'code2vec.py', 
-                   '--load', os.path.join('models', f'{dataset_name}', 'saved_model.release'), 
-                   '--export_code_vectors', 
-                   '--test', os.path.join('data', f'{dataset_name}', f'{dataset_name}.val.c2v')]
-            subprocess.run(cmd3, cwd=C2V_PATH, check=True)
-            
             # remove dictionaries
             dictionaries_path = os.path.join(C2V_PATH, 'dictionaries.bin')
             if os.path.exists(dictionaries_path):
