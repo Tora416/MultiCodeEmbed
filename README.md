@@ -13,7 +13,7 @@ This project uses the dataset from the ***Forsee*** project, [Link to dataset](h
 - [ ] Model Adaptation
   - [x] SBERT ![Static Badge](https://img.shields.io/badge/Done-green)
   - [x] CodeBERT ![Static Badge](https://img.shields.io/badge/Done-green)
-  - [ ] code2vec ![Static Badge](https://img.shields.io/badge/WIP-orange)
+  - [x] code2vec ![Static Badge](https://img.shields.io/badge/Done-green)
 - [ ] Documentation ![Static Badge](https://img.shields.io/badge/WIP-orange)
 
 ## 🗂️ Output Data
