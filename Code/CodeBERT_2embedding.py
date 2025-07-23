@@ -32,7 +32,7 @@ def load_model(dataFile:str, modelName: str, need_state_dict: bool):
     if need_state_dict:
         print("Loading model state dictionary...")
         # 加载训练好的权重
-        model_path = os.path.join(WORKING_DIR, 'code', 'saved_models', 'checkpoint-best-acc', modelName)
+        model_path = os.path.join(WORKING_DIR, 'code', 'saved_models', 'checkpoint-best-acc', modelName + '_model.bin')
         if os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path), strict=False)
             print("Loaded trained model weights")
@@ -100,11 +100,14 @@ def create_embeddings(tokenizer, model, df):
             return
         
         # 创建填充向量
-        c = list(context_embeddings[-1,::].size())
-        target = torch.zeros(512, 768)
-        source = context_embeddings[-1,::]
-        target[:c[0]] = source
-        vectors_table_padded.append(np.hstack(target.detach().numpy()))
+        # c = list(context_embeddings[-1,::].size())
+        # target = torch.zeros(512, 768)
+        # source = context_embeddings[-1,::]
+        # target[:c[0]] = source
+        # vectors_table_padded.append(np.hstack(target.detach().numpy()))
+        # 计算平均池化
+        pooled_embedding = torch.mean(context_embeddings, dim=0)  # 沿着第0维（序列长度）求平均
+        vectors_table_padded.append(pooled_embedding.detach().numpy())
         
         print('.', end='', flush=True)
         
@@ -216,4 +219,4 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
         print("Cleared memory and temporary files")
 
 if __name__ == "__main__":
-    main()
+    main(False)
