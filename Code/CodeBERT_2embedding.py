@@ -68,13 +68,25 @@ def test_model(tokenizer, model):
     tokens = [tokenizer.cls_token] + nl_tokens + [tokenizer.sep_token] + code_tokens + [tokenizer.eos_token]
     tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
     
+    print(f"Number of tokens: {len(tokens_ids)}")
+    print(f"Input tensor shape: {torch.tensor(tokens_ids)[None,:].shape}")
+    
     # 将输入数据移到GPU
     input_tensor = torch.tensor(tokens_ids)[None,:].to(device)
     
     with torch.no_grad():  # 推理时不需要计算梯度
         context_embeddings = model(input_tensor)[0]
+        
+    # 去掉批次维度
+    context_embeddings = context_embeddings.squeeze(0)
     
-    print(f"Context embeddings shape: {context_embeddings.shape}")
+    print(f"Raw model output shape: {context_embeddings.shape}")
+    print(f"Context embeddings shape after [0]: {context_embeddings.shape}")
+    
+    # 测试平均池化
+    pooled = torch.mean(context_embeddings, dim=0)
+    print(f"After mean pooling (dim=0): {pooled.shape}")
+    
     return context_embeddings
 
 def create_embeddings(tokenizer, model, df):
@@ -118,6 +130,9 @@ def create_embeddings(tokenizer, model, df):
             # 生成嵌入向量（使用no_grad节省内存）
             with torch.no_grad():
                 context_embeddings = model(input_tensor)[0]
+                
+            # 去掉批次维度
+            context_embeddings = context_embeddings.squeeze(0)  # 现在是 [seq_len, 768]
             
             # 计算平均池化
             pooled_embedding = torch.mean(context_embeddings, dim=0)  # 沿着第0维（序列长度）求平均
@@ -255,5 +270,4 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
         print("Cleared memory and temporary files")
 
 if __name__ == "__main__":
-    #main(False)
-    combine_embeddings(2, 'c', True)
+    main(False)
