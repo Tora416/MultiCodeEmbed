@@ -270,4 +270,4 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
         print("Cleared memory and temporary files")
 
 if __name__ == "__main__":
-    main(False)
+    main()
