@@ -19,6 +19,13 @@ DATASET_PATH = os.path.join(PROJECT_DIR, 'dataset')
 
 NEED_STATE_DICT = True
 
+# 设备检测
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(f"Using device: {device}")
+if torch.cuda.is_available():
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+    print(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB")
+
 def load_model(dataFile:str, modelName: str, need_state_dict: bool):
     """加载模型和分词器"""
     print("Loading tokenizer and model...")
@@ -44,6 +51,11 @@ def load_model(dataFile:str, modelName: str, need_state_dict: bool):
             except Exception as e:
                 raise RuntimeError(f'Failed to train model: {e}')
     
+    # 将模型移到GPU
+    model = model.to(device)
+    model.eval()  # 设置为评估模式
+    print(f"Model moved to {device}")
+    
     return tokenizer, model
 
 def test_model(tokenizer, model):
@@ -55,7 +67,12 @@ def test_model(tokenizer, model):
     
     tokens = [tokenizer.cls_token] + nl_tokens + [tokenizer.sep_token] + code_tokens + [tokenizer.eos_token]
     tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
-    context_embeddings = model(torch.tensor(tokens_ids)[None,:])[0]
+    
+    # 将输入数据移到GPU
+    input_tensor = torch.tensor(tokens_ids)[None,:].to(device)
+    
+    with torch.no_grad():  # 推理时不需要计算梯度
+        context_embeddings = model(input_tensor)[0]
     
     print(f"Context embeddings shape: {context_embeddings.shape}")
     return context_embeddings
@@ -94,9 +111,24 @@ def create_embeddings(tokenizer, model, df):
         
         try:
             # 生成嵌入向量
-            context_embeddings = model(torch.tensor(tokenizer.convert_tokens_to_ids(tokens))[None,:])[0]
+            # context_embeddings = model(torch.tensor(tokenizer.convert_tokens_to_ids(tokens))[None,:])[0]
+            # 将输入数据移到GPU
+            input_tensor = torch.tensor(tokenizer.convert_tokens_to_ids(tokens))[None,:].to(device)
+            
+            # 生成嵌入向量（使用no_grad节省内存）
+            with torch.no_grad():
+                context_embeddings = model(input_tensor)[0]
+            
+            # 计算平均池化
+            pooled_embedding = torch.mean(context_embeddings, dim=0)  # 沿着第0维（序列长度）求平均
+            
+            # 将结果移回CPU再转为numpy
+            vectors_table_padded.append(pooled_embedding.cpu().detach().numpy())
         except Exception as e:
             print(f"\nError processing text: {str(e)}\n")
+            # 清理GPU缓存
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             return
         
         # 创建填充向量
@@ -106,8 +138,8 @@ def create_embeddings(tokenizer, model, df):
         # target[:c[0]] = source
         # vectors_table_padded.append(np.hstack(target.detach().numpy()))
         # 计算平均池化
-        pooled_embedding = torch.mean(context_embeddings, dim=0)  # 沿着第0维（序列长度）求平均
-        vectors_table_padded.append(pooled_embedding.detach().numpy())
+        # pooled_embedding = torch.mean(context_embeddings, dim=0)  # 沿着第0维（序列长度）求平均
+        # vectors_table_padded.append(pooled_embedding.detach().numpy())
         
         print('.', end='', flush=True)
         
@@ -122,6 +154,10 @@ def create_embeddings(tokenizer, model, df):
             
             # 重置数组以节省内存
             vectors_table_padded = []
+            
+            # 清理GPU缓存
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             
             print(f"\nFinished pass: {len(vectors_calculation_passes)}")
             print(f"Processed {len(vectors_calculation_passes) * 1000} entries.\n")
@@ -219,4 +255,5 @@ def main(need_state_dict: bool = NEED_STATE_DICT):
         print("Cleared memory and temporary files")
 
 if __name__ == "__main__":
-    main(False)
+    #main(False)
+    combine_embeddings(2, 'c', True)
