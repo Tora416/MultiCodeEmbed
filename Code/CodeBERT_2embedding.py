@@ -39,7 +39,7 @@ def load_model(dataFile:str, modelName: str, need_state_dict: bool):
     if need_state_dict:
         print("Loading model state dictionary...")
         # 加载训练好的权重
-        model_path = os.path.join(WORKING_DIR, 'code', 'saved_models', 'checkpoint-best-acc', modelName + '_model.bin')
+        model_path = os.path.join(WORKING_DIR, 'code', 'saved_models', 'checkpoint-best-acc', modelName)
         if os.path.exists(model_path):
             model.load_state_dict(torch.load(model_path), strict=False)
             print("Loaded trained model weights")
